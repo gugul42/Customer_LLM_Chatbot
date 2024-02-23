@@ -12,13 +12,11 @@ from annoy import AnnoyIndex
 from google.cloud import texttospeech
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
 from langchain.chains import LLMChain
 from langchain import ConversationChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferWindowMemory
-
 import warnings
 warnings.filterwarnings('ignore')
 ################################################################
@@ -26,7 +24,7 @@ warnings.filterwarnings('ignore')
 #.0. 필요 모델 호출
 ## SBERT Model
 model_dir = 'snunlp/KR-SBERT-V40K-klueNLI-augSTS'
-model_sbert = SentenceTransformer(model_dir, device='cpu')
+model_sbert = SentenceTransformer(model_dir)
 
 ## Reranker Model
 tokenizer = AutoTokenizer.from_pretrained("Dongjin-kr/ko-reranker")
@@ -65,8 +63,8 @@ def make_vector_db(metadata, model_sbert):
     annoy_key.build(10)
 
     # DB 저장
-    annoy_quest.save('./vector_db/faq_vector_db.ann') # 경로 수정 필요
-    annoy_key.save('./vector_db/key_vector_db.ann')   # 경로 수정 필요
+    annoy_quest.save('./faq_vector_db.ann') # 경로 수정 필요
+    annoy_key.save('./key_vector_db.ann')   # 경로 수정 필요
     print('DB Complete')
 
 
