@@ -166,7 +166,7 @@ def chat_generate(query, conversation,
                                                        annoy_index, annoy_key, metadata)
     # 2. Generated Knowledge Prompting
     my_template = (
-        "#당신은 크레딧커넥트의 고객 상담원입니다. 높임말을 사용하여 2~3문장으로 답변하세요.#\n"
+        "#당신은 고객 상담원입니다. 높임말을 사용하여 2~3문장으로 답변하세요.#\n"
         "Question : {x}\n"
         "Knowledge : {answer}\n"
         "Answer : "
