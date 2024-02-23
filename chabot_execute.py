@@ -44,7 +44,7 @@ for _, row in template.iterrows():
     metadata.append(temp)
 
 # LLM Load
-api_key = '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' # Open API 
+api_key = '' # Open API 
 client = OpenAI(api_key = api_key)
 llm = ChatOpenAI(model_name = 'gpt-3.5-turbo', openai_api_key=api_key, temperature=0)
 
