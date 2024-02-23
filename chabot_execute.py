@@ -10,14 +10,12 @@ from tqdm import tqdm
 from openai import OpenAI
 from google.cloud import texttospeech
 from customer_chatbot import *
-
 import tiktoken
 from langchain import OpenAI, ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-
 import warnings
 warnings.filterwarnings('ignore')
 ####################################################################
@@ -27,11 +25,11 @@ warnings.filterwarnings('ignore')
 vector_dimension = 768  # 벡터 차원
 annoy_index = AnnoyIndex(vector_dimension, 'angular')
 annoy_key   = AnnoyIndex(vector_dimension, 'angular')
-annoy_index.load('./vector_db/faq_vector_db.ann')  # 저장된 인덱스 파일 로드
-annoy_key.load('./vector_db/key_vector_db.ann')  # 저장된 인덱스 파일 로드
+annoy_index.load('./faq_vector_db.ann')  # 저장된 인덱스 파일 로드
+annoy_key.load('./key_vector_db.ann')  # 저장된 인덱스 파일 로드
 
 #탬플릿 데이터 로드
-template = pd.read_excel('./data/chatbot_template.xlsx')
+template = pd.read_excel('./template.xlsx')
 
 # 템플릿 Dict 형태로 변환
 metadata = []
@@ -66,7 +64,7 @@ def execute_chatbot(query):
 
         # Generated Knowledge Prompting : 6번
         my_template = (
-            "#당신은 크레딧커넥트의 고객 상담원입니다. 높임말을 사용하여 답변하세요.#\n"
+            "#당신은 고객 상담원입니다. 높임말을 사용하여 답변하세요.#\n"
             "Question : {x1}\n"
             "Knowledge : {answer1}\n"
             "Question : {x2}\n"
@@ -80,7 +78,7 @@ def execute_chatbot(query):
 
         # 유사한 질문이 없는 경우 
         if min(top_num) > 0.3:
-            result = '고객님 죄송합니다. 해당 문제를 보다 잘 해결하기 위해서는 상세한 설명이 필요합니다.\n자세한 설명을 작성해주시거나 혹은 고객센터(02-761-0171 또는 02-761-0172)로 연락주세요.\n'
+            result = '고객님 죄송합니다. 해당 문제를 보다 잘 해결하기 위해서는 상세한 설명이 필요합니다.\n자세한 설명을 작성해주시거나 혹은 고객센터로 연락주세요.\n'
             print(result)
         else:
             # 답변 생성 
@@ -98,7 +96,7 @@ def execute_chatbot(query):
 
 def execute_callbot(client):
     ## 1. Recoding
-    WAVE_OUTPUT_FILENAME = "./audio/recoding.wav" # 녹음 저장할 위치
+    WAVE_OUTPUT_FILENAME = "./recoding.wav" # 녹음 저장할 위치
     recoding(WAVE_OUTPUT_FILENAME)
 
     # 2. Speech to Text
@@ -111,8 +109,8 @@ def execute_callbot(client):
         gen_result = execute_chatbot(recoding_data)
 
     # 4. Text to Speech
-    AUDIO_OUTPUT = "./audio/result.mp3"
-    api_path = "../ccm-customer-46e2457b7dfa.json"# Google TTS KEY
+    AUDIO_OUTPUT = "./result.mp3"
+    api_path = "../api.json"# Google TTS KEY
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=api_path
     client = texttospeech.TextToSpeechClient()
     text_to_speech_google(client, gen_result, AUDIO_OUTPUT)
@@ -125,16 +123,16 @@ def execute_loanbot(query):
         result = '대화가 종료됩니다.'
         print('대화가 종료됩니다.')
     else:
-        interest = pd.read_csv('./data/interest.csv')
-        limit = pd.read_csv('./data/limit_by.csv')
-        customer_info = pd.read_csv('./data/seller_infomation.csv')
+        interest = pd.read_csv('./interest.csv')
+        limit = pd.read_csv('./limit_by.csv')
+        customer_info = pd.read_csv('./seller_infomation.csv')
 
         # 데이터 변환
         customer_info = customer_info.sum().reset_index()
         customer_info['ratio'] = customer_info[0]/customer_info[0].sum()
 
         # 뱅크별 금리 한도 조합
-        banks = ['키움','도이치','KB']
+        banks = ['A','B','C']
         banks_dict = {}
         for b in banks:
             b_limit = 0
@@ -147,7 +145,7 @@ def execute_loanbot(query):
 
         # Generated Knowledge Prompting
         my_template = (
-            "#당신은 크레딧커넥트의 고객 상담원입니다. 높임말을 사용하여 답변하세요.#\n"
+            "#당신은 고객 상담원입니다. 높임말을 사용하여 답변하세요.#\n"
             "다음은 대출 정보입니다.\n"
             "{bank1} 은행의 한도는 {limit1}만원, {bank2} 은행의 한도는 =  {limit2}만원, {bank3} 은행의 한도는 = {limit3}만원\n"
             "{bank1} 은행의 금리는 {inter1:.2f}%, {bank2} 은행의 금리는 =  {inter2:.2f}%, {bank3} 은행의 금리는 = {inter3:.2f}%\n"
