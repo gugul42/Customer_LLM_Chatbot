@@ -1,4 +1,7 @@
 # 고객센터 챗봇(Rag+Reranker+GPT3.5) <br>
+
+![Untitled](https://github.com/gugul42/customer_llm_chatbot/assets/98931388/fe157808-4f10-44c1-a4f9-f880c9808638)
+
 ### 1) Summary
 - GPT 3.5 Turbo를 사용하는 챗봇 및 콜봇 모델
     - GPT, Llama, Yi 등 기능 테스트 진행 결과 GPT의 성능이 가장 좋았음
